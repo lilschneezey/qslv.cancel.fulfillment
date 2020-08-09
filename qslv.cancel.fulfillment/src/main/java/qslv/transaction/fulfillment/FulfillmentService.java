@@ -17,17 +17,17 @@ import qslv.transaction.response.CancelReservationResponse;
 import qslv.util.ServiceLevelIndicator;
 
 @Service
-public class FulfillmentControllerService {
-	private static final Logger log = LoggerFactory.getLogger(FulfillmentControllerService.class);
+public class FulfillmentService {
+	private static final Logger log = LoggerFactory.getLogger(FulfillmentService.class);
 	
 	@Autowired
 	private ConfigProperties config;
 	@Autowired
 	TransactionDao transactionDao;
 	@Autowired
-	private KafkaDao kafkaDao;
+	private KafkaProducerDao kafkaDao;
 
-	public void setKafkaDao(KafkaDao kafkaDao) {
+	public void setKafkaDao(KafkaProducerDao kafkaDao) {
 		this.kafkaDao = kafkaDao;
 	}
 	public void setConfig(ConfigProperties config) {
@@ -52,7 +52,7 @@ public class FulfillmentControllerService {
 			traceableResponse.getPayload().setResponse( cancelResponse );
 			traceableResponse.setMessageCompletionTime(LocalDateTime.now());
 
-			kafkaDao.produceCancel(traceableResponse);
+			kafkaDao.produceResponse(traceableResponse);
 			ServiceLevelIndicator.logAsyncServiceElapsedTime(log, "TransferFulfillment::fulfillCancel", 
 					config.getAitid(), message.getMessageCreationTime());
 		} catch (TransientDataAccessException ex) {
@@ -64,10 +64,14 @@ public class FulfillmentControllerService {
 			log.error("Unrecoverable exception thrown. {}", ex.getLocalizedMessage());
 
 			traceableResponse.getPayload().setMessage(ex.getLocalizedMessage());
-			traceableResponse.getPayload().setStatus(ResponseMessage.INTERNAL_ERROR);
+			if ( ex instanceof MalformedMessageException) {
+				traceableResponse.getPayload().setStatus(ResponseMessage.MALFORMED_MESSAGE);				
+			} else {
+				traceableResponse.getPayload().setStatus(ResponseMessage.INTERNAL_ERROR);
+			}
 			
 			try {
-				kafkaDao.produceCancel(traceableResponse);
+				kafkaDao.produceResponse(traceableResponse);
 			} catch (Exception iex) {
 				log.error("Additional unexpected exception caught while processing unexpected exception. Keep message on Kafka. {}", iex.getLocalizedMessage());
 				acknowledgment.nack(10000L);

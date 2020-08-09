@@ -15,13 +15,13 @@ public class KafkaCancelListener {
 	private static final Logger log = LoggerFactory.getLogger(KafkaCancelListener.class);
 
 	@Autowired
-	private FulfillmentControllerService fulfillmentController;
+	private FulfillmentService fulfillmentController;
 
-	public void setFulfillmentController(FulfillmentControllerService fulfillmentController) {
+	public void setFulfillmentController(FulfillmentService fulfillmentController) {
 		this.fulfillmentController = fulfillmentController;
 	}
 
-	@KafkaListener(topics = "request.queue")
+	@KafkaListener(topics = "cancel.fulfillment.request.queue")
 	void onCancelMessage(final ConsumerRecord<String, TraceableMessage<CancelReservationRequest>> data, Acknowledgment acknowledgment) {
 		log.trace("onMessage ENTRY");
 

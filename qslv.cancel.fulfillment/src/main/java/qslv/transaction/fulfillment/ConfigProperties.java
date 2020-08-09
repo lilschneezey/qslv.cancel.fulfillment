@@ -12,22 +12,14 @@ public class ConfigProperties {
 
 	private String aitid = "27834";
 	private String cancelReservationUrl;
-	private String commitReservationUrl;
-	private String postReservationUrl;
-	private String postTransactionUrl;
-	private String transferAndTransactUrl;
 	private int restConnectionRequestTimeout = 1000;
 	private int restConnectTimeout = 1000;
 	private int restTimeout = 1000;
 	private int restAttempts = 3;
 	private int restBackoffDelay = 100;
 	private int restBackoffDelayMax = 500; 
-	private String kafkaTransactionRequestQueue;
-	private String kafkaTransactionReplyQueue;
 	private String kafkaCancelRequestQueue;
 	private String kafkaCancelReplyQueue;
-	private String kafkaCommitRequestQueue;
-	private String kafkaCommitReplyQueue;
 	private int kafkaTimeout;
 	private String kafkaProducerPropertiesPath;
 	private String kafkaConsumerPropertiesPath;
@@ -38,30 +30,6 @@ public class ConfigProperties {
 
 	public void setAitid(String aitid) {
 		this.aitid = aitid;
-	}
-
-	public String getPostTransactionUrl() {
-		return postTransactionUrl;
-	}
-
-	public void setPostTransactionUrl(String postTransactionUrl) {
-		this.postTransactionUrl = postTransactionUrl;
-	}
-
-	public String getTransferAndTransactUrl() {
-		return transferAndTransactUrl;
-	}
-
-	public void setTransferAndTransactUrl(String transferAndTransactUrl) {
-		this.transferAndTransactUrl = transferAndTransactUrl;
-	}
-
-	public String getCommitReservationUrl() {
-		return commitReservationUrl;
-	}
-
-	public void setCommitReservationUrl(String commitReservationUrl) {
-		this.commitReservationUrl = commitReservationUrl;
 	}
 
 	public int getRestConnectionRequestTimeout() {
@@ -128,30 +96,6 @@ public class ConfigProperties {
 		this.cancelReservationUrl = cancelReservationUrl;
 	}
 
-	public String getPostReservationUrl() {
-		return postReservationUrl;
-	}
-
-	public void setPostReservationUrl(String postReservationUrl) {
-		this.postReservationUrl = postReservationUrl;
-	}
-
-	public String getKafkaTransactionRequestQueue() {
-		return kafkaTransactionRequestQueue;
-	}
-
-	public void setKafkaTransactionRequestQueue(String kafkaTransactionRequestQueue) {
-		this.kafkaTransactionRequestQueue = kafkaTransactionRequestQueue;
-	}
-
-	public String getKafkaTransactionReplyQueue() {
-		return kafkaTransactionReplyQueue;
-	}
-
-	public void setKafkaTransactionReplyQueue(String kafkaTransactionReplyQueue) {
-		this.kafkaTransactionReplyQueue = kafkaTransactionReplyQueue;
-	}
-
 	public String getKafkaCancelRequestQueue() {
 		return kafkaCancelRequestQueue;
 	}
@@ -166,22 +110,6 @@ public class ConfigProperties {
 
 	public void setKafkaCancelReplyQueue(String kafkaCancelReplyQueue) {
 		this.kafkaCancelReplyQueue = kafkaCancelReplyQueue;
-	}
-
-	public String getKafkaCommitRequestQueue() {
-		return kafkaCommitRequestQueue;
-	}
-
-	public void setKafkaCommitRequestQueue(String kafkaCommitRequestQueue) {
-		this.kafkaCommitRequestQueue = kafkaCommitRequestQueue;
-	}
-
-	public String getKafkaCommitReplyQueue() {
-		return kafkaCommitReplyQueue;
-	}
-
-	public void setKafkaCommitReplyQueue(String kafkaCommitReplyQueue) {
-		this.kafkaCommitReplyQueue = kafkaCommitReplyQueue;
 	}
 
 	public String getKafkaProducerPropertiesPath() {

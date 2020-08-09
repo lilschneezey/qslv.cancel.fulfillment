@@ -51,9 +51,11 @@ public class TransactionDao {
 	public CancelReservationResponse cancelReservation(final TraceableMessage<?> message, final CancelReservationRequest request) {
 		log.warn("cancelReservation ENTRY");
 
-		CancelReservationResponse response = callService(message, config.getCancelReservationUrl(), request, cancelResponseType);
+		HttpHeaders headers = buildHeaders(message);
+		headers.add(TraceableRequest.ACCEPT_VERSION, CancelReservationRequest.VERSION_1_0);
+		CancelReservationResponse response = callService(headers, message, config.getCancelReservationUrl(), request, cancelResponseType);
 		int status = response.getStatus();
-		if (status != CancelReservationResponse.SUCCESS && status != CancelReservationResponse.ALREADY_PRESENT ) {
+		if (status != CancelReservationResponse.SUCCESS) {
 			String msg = String.format("Unexpected return from %s Service. %s", config.getCancelReservationUrl(), response.toString());
 			log.error(msg);
 			throw new NonTransientDataAccessResourceException(msg);
@@ -63,10 +65,10 @@ public class TransactionDao {
 		return response;
 	}
 
-	private <M,R> R callService(final TraceableMessage<?> message, String url, M request, ParameterizedTypeReference<TimedResponse<R>> typereference) {
-		log.trace("commitReservation ENTRY");
+	private <M,R> R callService(final HttpHeaders headers, final TraceableMessage<?> message, 
+			String url, M request, ParameterizedTypeReference<TimedResponse<R>> typereference) {
+		log.trace("callService ENTRY");
 
-		HttpHeaders headers = buildHeaders(message);
 		ResponseEntity<TimedResponse<R>> response = null;
 		try {
 			response = retryTemplate.execute(new RetryCallback<ResponseEntity<TimedResponse<R>>, ResourceAccessException>() {
@@ -87,7 +89,7 @@ public class TransactionDao {
 			log.error(msg);
 			throw new NonTransientDataAccessResourceException(msg);
 		}
-		log.trace("commitReservation ENTRY");
+		log.trace("callService ENTRY");
 		return response.getBody().getPayload();
 	}
 	

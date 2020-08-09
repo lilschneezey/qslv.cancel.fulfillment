@@ -15,8 +15,8 @@ import qslv.transaction.request.CancelReservationRequest;
 import qslv.transaction.response.CancelReservationResponse;
 
 @Repository
-public class KafkaDao {
-	private static final Logger log = LoggerFactory.getLogger(KafkaDao.class);
+public class KafkaProducerDao {
+	private static final Logger log = LoggerFactory.getLogger(KafkaProducerDao.class);
 
 	@Autowired
 	private ConfigProperties config;
@@ -32,10 +32,10 @@ public class KafkaDao {
 		this.cancelKafkaTemplate = cancelKafkaTemplate;
 	}
 
-	public void produceCancel(TraceableMessage<ResponseMessage<CancelReservationRequest,CancelReservationResponse>> message) throws DataAccessException {
+	public void produceResponse(TraceableMessage<ResponseMessage<CancelReservationRequest,CancelReservationResponse>> message) throws DataAccessException {
 		log.trace("ENTRY produceCancel");
 		try {
-			String key = message.getPayload().getRequest().getAccountNumber();
+			String key = message.getPayload().getRequest()==null ? "NULL_PAYLOAD_KEY_SUBSTITUTE" : message.getPayload().getRequest().getAccountNumber();
 			cancelKafkaTemplate.send(config.getKafkaCancelReplyQueue(), key, message).get();
 			log.debug("Kakfa Produce {}", message);
 		} catch ( ExecutionException ex ) {

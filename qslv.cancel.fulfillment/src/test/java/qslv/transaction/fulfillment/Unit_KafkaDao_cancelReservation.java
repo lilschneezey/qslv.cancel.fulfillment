@@ -27,7 +27,7 @@ import qslv.transaction.response.CancelReservationResponse;
 
 @ExtendWith(MockitoExtension.class)
 public class Unit_KafkaDao_cancelReservation {
-	KafkaDao kafkaDao = new KafkaDao();
+	KafkaProducerDao kafkaDao = new KafkaProducerDao();
 	ConfigProperties config = new ConfigProperties();
 	
 	@Mock
@@ -73,7 +73,7 @@ public class Unit_KafkaDao_cancelReservation {
 		doReturn(future).when(cancelKafkaTemplate).send(anyString(), anyString(), any());
 	
 		//-Execute----------------------------		
-		kafkaDao.produceCancel(setup_message);
+		kafkaDao.produceResponse(setup_message);
 		
 		//-Verify----------------------------		
 		verify(future).get();
@@ -94,7 +94,7 @@ public class Unit_KafkaDao_cancelReservation {
 		
 		//--Execute--------------	
 		assertThrows(TransientDataAccessResourceException.class, () -> {
-			kafkaDao.produceCancel(setup_message);
+			kafkaDao.produceResponse(setup_message);
 		});
 	}
 

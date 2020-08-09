@@ -29,13 +29,13 @@ import qslv.transaction.response.CancelReservationResponse;
 @ExtendWith(MockitoExtension.class)
 class Unit_Controller_fulfillCancel {
 	@Autowired
-	FulfillmentControllerService fulfillmentControllerService = new FulfillmentControllerService();
+	FulfillmentService fulfillmentControllerService = new FulfillmentService();
 	@Mock
 	private ConfigProperties config;
 	@Mock
 	TransactionDao transactionDao;
 	@Mock
-	private KafkaDao kafkaDao;
+	private KafkaProducerDao kafkaDao;
 	@Mock
 	Acknowledgment acknowledgment;
 	@Captor
@@ -59,14 +59,14 @@ class Unit_Controller_fulfillCancel {
 
 		//--Prepare----------------------
 		doReturn(cancelResponse).when(transactionDao).cancelReservation(any(), any());
-		doNothing().when(kafkaDao).produceCancel(any());
+		doNothing().when(kafkaDao).produceResponse(any());
 		doNothing().when(acknowledgment).acknowledge();
 		
 		//--Execute-----------------------
 		fulfillmentControllerService.fulfillCancel(request, acknowledgment);
 		
 		//--Verify------------------------
-		verify(kafkaDao).produceCancel(captor.capture());
+		verify(kafkaDao).produceResponse(captor.capture());
 		
 		TraceableMessage<?> trace = captor.getValue();
 		assertEquals(trace.getBusinessTaxonomyId(), request.getBusinessTaxonomyId());
@@ -102,14 +102,14 @@ class Unit_Controller_fulfillCancel {
 
 		//--Prepare----------------------
 		doThrow(new RuntimeException("werwer")).when(transactionDao).cancelReservation(any(), any());
-		doNothing().when(kafkaDao).produceCancel(any());
+		doNothing().when(kafkaDao).produceResponse(any());
 		doNothing().when(acknowledgment).acknowledge();
 		
 		//--Execute-----------------------
 		fulfillmentControllerService.fulfillCancel(request, acknowledgment);
 		
 		//--Verify------------------------
-		verify(kafkaDao).produceCancel(captor.capture());
+		verify(kafkaDao).produceResponse(captor.capture());
 		assertEquals(captor.getValue().getPayload().getStatus(), ResponseMessage.INTERNAL_ERROR);
 		assertNotNull(captor.getValue().getPayload().getMessage());
 	}
@@ -122,7 +122,7 @@ class Unit_Controller_fulfillCancel {
 
 		//--Prepare----------------------
 		doReturn(cancelResponse).when(transactionDao).cancelReservation(any(), any());
-		doThrow(new TransientDataAccessResourceException(";asdufgha;")).when(kafkaDao).produceCancel(any());
+		doThrow(new TransientDataAccessResourceException(";asdufgha;")).when(kafkaDao).produceResponse(any());
 		doNothing().when(acknowledgment).nack(anyLong());
 		
 		//--Execute-----------------------
@@ -139,14 +139,14 @@ class Unit_Controller_fulfillCancel {
 
 		//--Prepare----------------------
 		doReturn(cancelResponse).when(transactionDao).cancelReservation(any(), any());
-		doThrow(new RuntimeException("34jkdsfjlsdi")).doNothing().when(kafkaDao).produceCancel(any());
+		doThrow(new RuntimeException("34jkdsfjlsdi")).doNothing().when(kafkaDao).produceResponse(any());
 		doNothing().when(acknowledgment).acknowledge();
 		
 		//--Execute-----------------------
 		fulfillmentControllerService.fulfillCancel(request, acknowledgment);
 		
 		//--Verify------------------------
-		verify(kafkaDao, times(2)).produceCancel(captor.capture());
+		verify(kafkaDao, times(2)).produceResponse(captor.capture());
 		assertEquals(captor.getValue().getPayload().getStatus(), ResponseMessage.INTERNAL_ERROR);
 		assertNotNull(captor.getValue().getPayload().getMessage());
 	}
@@ -159,7 +159,7 @@ class Unit_Controller_fulfillCancel {
 
 		//--Prepare----------------------
 		doReturn(cancelResponse).when(transactionDao).cancelReservation(any(), any());
-		doThrow(new RuntimeException("34jkdsfjlsdi")).when(kafkaDao).produceCancel(any());
+		doThrow(new RuntimeException("34jkdsfjlsdi")).when(kafkaDao).produceResponse(any());
 		doNothing().when(acknowledgment).nack(anyLong());
 		
 		//--Execute-----------------------
@@ -173,7 +173,7 @@ class Unit_Controller_fulfillCancel {
 		int count = 1;
 		
 		//-- Prepare ------------------
-		doNothing().when(kafkaDao).produceCancel(any());
+		doNothing().when(kafkaDao).produceResponse(any());
 		doNothing().when(acknowledgment).acknowledge();
 		
 		//-- Setup ------------------
@@ -184,7 +184,7 @@ class Unit_Controller_fulfillCancel {
 		//--Execute-----------------------
 		fulfillmentControllerService.fulfillCancel(request, acknowledgment);		
 		//--Verify------------------------
-		verify(kafkaDao, times(count++)).produceCancel(captor.capture());
+		verify(kafkaDao, times(count++)).produceResponse(captor.capture());
 		assertEquals(captor.getValue().getPayload().getStatus(), ResponseMessage.INTERNAL_ERROR);
 		assertTrue(captor.getValue().getPayload().getMessage().contains("Request UUID"));
 
@@ -193,7 +193,7 @@ class Unit_Controller_fulfillCancel {
 		//--Execute-----------------------
 		fulfillmentControllerService.fulfillCancel(request, acknowledgment);		
 		//--Verify------------------------
-		verify(kafkaDao, times(count++)).produceCancel(captor.capture());
+		verify(kafkaDao, times(count++)).produceResponse(captor.capture());
 		assertEquals(captor.getValue().getPayload().getStatus(), ResponseMessage.INTERNAL_ERROR);
 		assertTrue(captor.getValue().getPayload().getMessage().contains("Reservation UUID"));
 
@@ -202,7 +202,7 @@ class Unit_Controller_fulfillCancel {
 		//--Execute-----------------------
 		fulfillmentControllerService.fulfillCancel(request, acknowledgment);		
 		//--Verify------------------------
-		verify(kafkaDao, times(count++)).produceCancel(captor.capture());
+		verify(kafkaDao, times(count++)).produceResponse(captor.capture());
 		assertEquals(captor.getValue().getPayload().getStatus(), ResponseMessage.INTERNAL_ERROR);
 		assertTrue(captor.getValue().getPayload().getMessage().contains("Meta Data"));
 
@@ -213,7 +213,7 @@ class Unit_Controller_fulfillCancel {
 		//--Execute-----------------------
 		fulfillmentControllerService.fulfillCancel(request, acknowledgment);		
 		//--Verify------------------------
-		verify(kafkaDao, times(count++)).produceCancel(captor.capture());
+		verify(kafkaDao, times(count++)).produceResponse(captor.capture());
 		assertEquals(captor.getValue().getPayload().getStatus(), ResponseMessage.INTERNAL_ERROR);
 		assertTrue(captor.getValue().getPayload().getMessage().contains("AIT"));
 
@@ -222,7 +222,7 @@ class Unit_Controller_fulfillCancel {
 		//--Execute-----------------------
 		fulfillmentControllerService.fulfillCancel(request, acknowledgment);		
 		//--Verify------------------------
-		verify(kafkaDao, times(count++)).produceCancel(captor.capture());
+		verify(kafkaDao, times(count++)).produceResponse(captor.capture());
 		assertEquals(captor.getValue().getPayload().getStatus(), ResponseMessage.INTERNAL_ERROR);
 		assertTrue(captor.getValue().getPayload().getMessage().contains("Correlation"));
 
@@ -231,7 +231,7 @@ class Unit_Controller_fulfillCancel {
 		//--Execute-----------------------
 		fulfillmentControllerService.fulfillCancel(request, acknowledgment);		
 		//--Verify------------------------
-		verify(kafkaDao, times(count++)).produceCancel(captor.capture());
+		verify(kafkaDao, times(count++)).produceResponse(captor.capture());
 		assertEquals(captor.getValue().getPayload().getStatus(), ResponseMessage.INTERNAL_ERROR);
 		assertTrue(captor.getValue().getPayload().getMessage().contains("Business Taxonomy Id"));
 
@@ -240,7 +240,7 @@ class Unit_Controller_fulfillCancel {
 		//--Execute-----------------------
 		fulfillmentControllerService.fulfillCancel(request, acknowledgment);		
 		//--Verify------------------------
-		verify(kafkaDao, times(count++)).produceCancel(captor.capture());
+		verify(kafkaDao, times(count++)).produceResponse(captor.capture());
 		assertEquals(captor.getValue().getPayload().getStatus(), ResponseMessage.INTERNAL_ERROR);
 		assertTrue(captor.getValue().getPayload().getMessage().contains("Message Creation Time"));
 
@@ -250,7 +250,7 @@ class Unit_Controller_fulfillCancel {
 		//--Execute-----------------------
 		fulfillmentControllerService.fulfillCancel(request, acknowledgment);		
 		//--Verify------------------------
-		verify(kafkaDao, times(count++)).produceCancel(captor.capture());
+		verify(kafkaDao, times(count++)).produceResponse(captor.capture());
 		assertEquals(captor.getValue().getPayload().getStatus(), ResponseMessage.INTERNAL_ERROR);
 		assertTrue(captor.getValue().getPayload().getMessage().contains("Fulfillment Message"));
 
@@ -260,7 +260,7 @@ class Unit_Controller_fulfillCancel {
 		
 		//--Prepare----------------------
 		doReturn(cancelResponse).when(transactionDao).cancelReservation(any(), any());
-		doNothing().when(kafkaDao).produceCancel(any());
+		doNothing().when(kafkaDao).produceResponse(any());
 		doNothing().when(acknowledgment).acknowledge();
 		
 		//--Execute-----------------------
