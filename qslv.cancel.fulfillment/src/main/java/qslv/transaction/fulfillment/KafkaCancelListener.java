@@ -21,7 +21,7 @@ public class KafkaCancelListener {
 		this.fulfillmentController = fulfillmentController;
 	}
 
-	@KafkaListener(topics = "cancel.fulfillment.request.queue")
+	@KafkaListener(topics = "#{ @configProperties.kafkaCancelRequestQueue }")
 	void onCancelMessage(final ConsumerRecord<String, TraceableMessage<CancelReservationRequest>> data, Acknowledgment acknowledgment) {
 		log.trace("onMessage ENTRY");
 
